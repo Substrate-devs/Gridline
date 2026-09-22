@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Check,
   ChevronDown,
+  Clock3,
   Command,
   Copy,
   FileCode2,
@@ -222,21 +223,37 @@ function CommandPaletteDemo() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeCommand, setActiveCommand] = useState("Explain this file");
+  const [highlighted, setHighlighted] = useState(0);
+  const [recent, setRecent] = useState<string[]>(() => {
+    try { return JSON.parse(window.localStorage.getItem("gridline-recent-commands") || "[]"); } catch { return []; }
+  });
   const commands = ["Explain this file", "Find related code", "Refactor this function", "Run the right checks"];
   const filteredCommands = commands.filter((command) => command.toLowerCase().includes(query.toLowerCase()));
+  const visibleCommands = query ? filteredCommands : [...recent.filter((command) => commands.includes(command)), ...commands.filter((command) => !recent.includes(command))];
+  const chooseCommand = (command: string) => {
+    setActiveCommand(command);
+    setRecent((previous) => {
+      const next = [command, ...previous.filter((item) => item !== command)].slice(0, 4);
+      try { window.localStorage.setItem("gridline-recent-commands", JSON.stringify(next)); } catch { /* demo storage can be unavailable */ }
+      return next;
+    });
+    setOpen(false);
+    setQuery("");
+    setHighlighted(0);
+  };
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((value) => !value);
       }
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") { setOpen(false); setQuery(""); }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
   const generatedCode = activeCommand === "Refactor this function" ? "function normalize(input) {\n  return input.trim().toLowerCase();\n}" : activeCommand === "Find related code" ? "// 4 related files found\nimport { createPlan } from \"./context\";" : activeCommand === "Run the right checks" ? "$ pnpm lint\n✓ 42 files checked in 1.8s" : "// Gridline context\nThis file renders the workspace surface.";
-  return <div className="command-demo"><button className="command-line command-trigger" onClick={() => setOpen(true)}><span className="keycap">⌘</span><span className="keycap">K</span><span>Ask Gridline anything…</span><span className="command-caret" /><span className="command-hint">Try it</span></button>{open ? <div className="command-popover"><div className="command-search"><Search size={15} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Ask about this codebase…" /><span className="keycap">esc</span></div><div className="command-list">{filteredCommands.map((command) => <button className={activeCommand === command ? "selected" : ""} key={command} onClick={() => { setActiveCommand(command); setOpen(false); setQuery(""); }}><Sparkles size={13} /><span>{command}</span><ArrowRight size={13} /></button>)}{filteredCommands.length === 0 ? <span className="command-empty">No matching commands. Try “refactor”.</span> : null}</div><div className="command-result"><span className="result-label"><Sparkles size={12} /> Gridline generated</span><pre>{generatedCode}</pre></div></div> : null}<div className="command-result command-result-static"><span className="result-label"><Sparkles size={12} /> Gridline generated</span><pre>{generatedCode}</pre></div></div>;
+  return <div className="command-demo"><button className="command-line command-trigger" aria-expanded={open} aria-controls="gridline-command-palette" onClick={() => setOpen(true)}><span className="keycap">⌘</span><span className="keycap">K</span><span>Ask Gridline anything…</span><span className="command-caret" /><span className="command-hint">Try it</span></button>{open ? <div className="command-popover" id="gridline-command-palette" role="dialog" aria-label="Gridline command palette"><div className="command-search"><Search size={15} /><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setHighlighted(0); }} onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); setHighlighted((value) => Math.min(value + 1, visibleCommands.length - 1)); } if (event.key === "ArrowUp") { event.preventDefault(); setHighlighted((value) => Math.max(value - 1, 0)); } if (event.key === "Enter" && visibleCommands[highlighted]) { event.preventDefault(); chooseCommand(visibleCommands[highlighted]); } }} placeholder="Ask about this codebase…" /><span className="keycap">esc</span></div><div className="command-list" role="listbox">{visibleCommands.map((command, index) => <button role="option" aria-selected={highlighted === index} className={highlighted === index ? "selected" : ""} key={command} onMouseEnter={() => setHighlighted(index)} onClick={() => chooseCommand(command)}>{!query && recent.includes(command) ? <Clock3 size={13} /> : <Sparkles size={13} />}<span>{command}</span><ArrowRight size={13} /></button>)}{visibleCommands.length === 0 ? <span className="command-empty">No matching commands. Try “refactor”.</span> : null}</div><div className="command-result"><span className="result-label"><Sparkles size={12} /> Gridline generated</span><pre>{generatedCode}</pre></div></div> : null}<div className="command-result command-result-static"><span className="result-label"><Sparkles size={12} /> Gridline generated</span><pre>{generatedCode}</pre></div></div>;
 }
 
 function CookieBanner({ onClose }: { onClose: () => void }) {

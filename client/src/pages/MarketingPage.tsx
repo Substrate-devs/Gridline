@@ -1,56 +1,37 @@
-import { ArrowRight, ArrowUpRight, Check, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Code2, GitBranch, LockKeyhole, MessageSquareQuote, Sparkles, Users, Zap } from "lucide-react";
 import { SiteFooter, SiteHeader } from "../components/SiteChrome";
 
 type PageKind = "product" | "teams" | "pricing" | "changelog";
 
-const content = {
-  product: {
-    kicker: "01 / PRODUCT",
-    title: "An editor that keeps the whole system in view.",
-    intro: "Gridline brings your code, context, and next best action into one calm workspace. Less hunting. More building.",
-    accent: "lime",
-    cards: [
-      ["Context engine", "Gridline maps your repository before it suggests a change, so every answer starts from the real shape of your product."],
-      ["Agent workspace", "Ask for a plan, a refactor, or a review. See the reasoning, the files, and the diff before anything is applied."],
-      ["Ship surface", "Run checks, review the change, and turn the work into a pull request without leaving the flow."],
-    ],
-  },
-  teams: {
-    kicker: "02 / FOR TEAMS",
-    title: "A shared mental model for the work between the work.",
-    intro: "Gridline makes taste and context legible across a team, from the first product thought to the final merge.",
-    accent: "blue",
-    cards: [
-      ["Small teams", "Move quickly without creating a second system to maintain. Everyone sees the why behind the code."],
-      ["Growing teams", "Keep patterns discoverable and onboarding closer to a conversation with the people who built the system."],
-      ["Leads & makers", "Set the direction once, then let Gridline carry intent through the details."],
-    ],
-  },
-  pricing: {
-    kicker: "03 / PRICING",
-    title: "Start with a sharper editor. Grow into a calmer system.",
-    intro: "Bring your repo and your point of view. Gridline is free while you find the parts of your workflow worth keeping.",
-    accent: "orange",
-    cards: [
-      ["Free", "$0 / month", "Unlimited local projects, core context search, and a command palette built for everyday work."],
-      ["Studio", "$24 / seat / month", "Shared workspaces, deeper agent context, review summaries, and priority model access."],
-      ["Company", "Let’s talk", "Private deployment options, admin controls, security reviews, and hands-on onboarding."],
-    ],
-  },
-  changelog: {
-    kicker: "04 / CHANGELOG",
-    title: "Small releases. Noticeable difference.",
-    intro: "Gridline is shaped in public by people who care about the feel of their tools as much as the output.",
-    accent: "lime",
-    cards: [
-      ["v0.8 · Command palette", "Ask Gridline to explain, refactor, or find code without leaving the file you are thinking in."],
-      ["v0.7 · Repository map", "A faster context pass means better first answers and fewer irrelevant suggestions."],
-      ["v0.6 · Review mode", "See intent, files touched, and checks in one compact change surface."],
-    ],
-  },
-} as const;
+type PageData = { kicker: string; title: string; intro: string; accent: string; cards: string[][]; };
+
+const content: Record<PageKind, PageData> = {
+  product: { kicker: "01 / PRODUCT", title: "An editor that keeps the whole system in view.", intro: "Gridline brings your code, context, and next best action into one calm workspace. Less hunting. More building.", accent: "lime", cards: [["Context engine", "Gridline maps your repository before it suggests a change, so every answer starts from the real shape of your product."], ["Agent workspace", "Ask for a plan, a refactor, or a review. See the reasoning, the files, and the diff before anything is applied."], ["Ship surface", "Run checks, review the change, and turn the work into a pull request without leaving the flow."]] },
+  teams: { kicker: "02 / FOR TEAMS", title: "A shared mental model for the work between the work.", intro: "Gridline makes taste and context legible across a team, from the first product thought to the final merge.", accent: "blue", cards: [["Small teams", "Move quickly without creating a second system to maintain. Everyone sees the why behind the code."], ["Growing teams", "Keep patterns discoverable and onboarding closer to a conversation with the people who built the system."], ["Leads & makers", "Set the direction once, then let Gridline carry intent through the details."]] },
+  pricing: { kicker: "03 / PRICING", title: "Start with a sharper editor. Grow into a calmer system.", intro: "Bring your repo and your point of view. Gridline is free while you find the parts of your workflow worth keeping.", accent: "orange", cards: [["Free", "$0 / month", "Unlimited local projects, core context search, and a command palette built for everyday work."], ["Studio", "$24 / seat / month", "Shared workspaces, deeper agent context, review summaries, and priority model access."], ["Company", "Let’s talk", "Private deployment options, admin controls, security reviews, and hands-on onboarding."]] },
+  changelog: { kicker: "04 / CHANGELOG", title: "Small releases. Noticeable difference.", intro: "Gridline is shaped in public by people who care about the feel of their tools as much as the output.", accent: "lime", cards: [["v0.8 · Command palette", "Ask Gridline to explain, refactor, or find code without leaving the file you are thinking in."], ["v0.7 · Repository map", "A faster context pass means better first answers and fewer irrelevant suggestions."], ["v0.6 · Review mode", "See intent, files touched, and checks in one compact change surface."]] },
+};
+
+const integrations = ["GitHub", "GitLab", "Linear", "Slack", "Notion", "Figma", "Sentry", "Vercel"];
+const productChapters = [["01", "Read the whole system", "Gridline builds a living map of your repository, linking routes, components, tests, and conventions before it starts suggesting.", "92%", "of first suggestions reference the right files"], ["02", "Make intent executable", "Turn a rough thought into a plan with decisions, touched files, and a reviewable diff. Keep the why attached to the work.", "4×", "fewer context switches per task"], ["03", "Ship with receipts", "Checks, summaries, and changelog notes arrive at the end of the same thread, ready for your team to trust.", "18 min", "saved on the average review"]];
+const teamChapters = [["01", "A faster first week", "New teammates can ask the codebase questions in plain language and see how your patterns fit together.", "2.4×", "faster onboarding to first PR"], ["02", "Taste that travels", "Save decisions as reusable context so the next person gets the reasoning, not just the result.", "38%", "more shared context in reviews"], ["03", "Privacy without friction", "Keep repositories local, control workspace access, and choose exactly what becomes team memory.", "0", "training on your private code"]];
+
+function ChapterGrid({ kind }: { kind: PageKind }) {
+  const chapters = kind === "product" ? productChapters : teamChapters;
+  return <section className="chapter-section"><div className="chapter-heading"><span className="section-index">{kind === "product" ? "THE WORKFLOW" : "THE TEAM LOOP"}</span><h2>{kind === "product" ? <>From <em>context</em><br />to shipped.</> : <>Make the invisible<br /><em>visible.</em></>}</h2><p>{kind === "product" ? "Three connected surfaces. One continuous thread from thought to change." : "The best teams move quickly because their decisions are easy to find, not because they skip them."}</p></div><div className="chapter-list">{chapters.map(([index, title, text, metric, metricText]) => <article className="chapter-card" key={index}><div className="chapter-top"><span>{index}</span><span className="chapter-icon">{index === "01" ? <Code2 size={17} /> : index === "02" ? <GitBranch size={17} /> : <LockKeyhole size={17} />}</span></div><h3>{title}</h3><p>{text}</p><div className="chapter-metric"><strong>{metric}</strong><span>{metricText}</span></div></article>)}</div></section>;
+}
+
+function Integrations({ kind }: { kind: PageKind }) {
+  return <section className="integration-section"><div><span className="section-index">WORKS WITH YOUR STACK</span><h2>Bring the tools<br /><em>you already trust.</em></h2><p>Gridline meets your workflow where it is, then makes the handoffs feel a little less like handoffs.</p></div><div className="integration-cloud">{integrations.map((name, index) => <div className={`integration-chip integration-chip-${index % 4}`} key={name}><span className="integration-mark">{name[0]}</span>{name}<Check size={13} /></div>)}</div></section>;
+}
+
+function Testimonial({ kind }: { kind: PageKind }) {
+  const quote = kind === "product" ? "Gridline gives us the rare feeling that the tool has read the same brief we have." : "The best part is not the autocomplete. It is that a new teammate can ask why and get the real answer.";
+  return <section className="testimonial-section"><MessageSquareQuote size={28} /><blockquote>“{quote}”</blockquote><div className="testimonial-person"><span className="person-avatar">{kind === "product" ? "MC" : "AR"}</span><span><strong>{kind === "product" ? "Maya Chen" : "Alex Rivera"}</strong><small>{kind === "product" ? "Staff Engineer · Orbit" : "Head of Product · Common Room"}</small></span></div></section>;
+}
 
 export default function MarketingPage({ kind }: { kind: PageKind }) {
   const page = content[kind];
-  return <div className="site-shell page-shell"><SiteHeader /><main className="marketing-main"><section className={`marketing-hero accent-${page.accent}`}><div className="marketing-hero-copy"><span className="section-index">{page.kicker}</span><h1>{page.title}</h1><p>{page.intro}</p><a className="primary-button" href="/#download">Get early access <ArrowRight size={15} /></a></div><div className="marketing-orbit"><div className="orbit-label"><Sparkles size={15} /> Gridline / in context</div><div className="orbit-code"><span>const</span> intent = <b>"ship thoughtful software"</b><br /><span>await</span> gridline.<i>understand</i>(intent)<br /><span>return</span> <strong>clarity</strong></div><div className="orbit-check"><Check size={14} /> Context loaded · 18 files</div></div></section><section className="marketing-grid">{page.cards.map((card, index) => <article className={`marketing-card marketing-card-${index + 1}`} key={card[0]}><span className="card-index">0{index + 1}</span><h2>{card[0]}</h2>{card[2] ? <strong className="price-tag">{card[1]}</strong> : null}<p>{card[2] || card[1]}</p><a href="/#product" className="inline-link">Explore this layer <ArrowUpRight size={15} /></a></article>)}</section><section className="marketing-quote"><span className="lime-pill">THE GRIDLINE PRINCIPLE</span><blockquote>“The best AI tools don’t make the work feel automated. They make the work feel more like yours.”</blockquote><span className="quote-caption">— Product notes, issue 004</span></section></main><SiteFooter /></div>;
+  const detailed = kind === "product" || kind === "teams";
+  return <div className="site-shell page-shell"><SiteHeader /><main className="marketing-main"><section className={`marketing-hero accent-${page.accent}`}><div className="marketing-hero-copy"><span className="section-index">{page.kicker}</span><h1>{page.title}</h1><p>{page.intro}</p><a className="primary-button" href="/#download">Get early access <ArrowRight size={15} /></a></div><div className="marketing-orbit"><div className="orbit-label"><Sparkles size={15} /> Gridline / in context</div><div className="orbit-code"><span>const</span> intent = <b>"ship thoughtful software"</b><br /><span>await</span> gridline.<i>understand</i>(intent)<br /><span>return</span> <strong>clarity</strong></div><div className="orbit-check"><Check size={14} /> Context loaded · 18 files</div></div></section><section className="marketing-grid">{page.cards.map((card, index) => <article className={`marketing-card marketing-card-${index + 1}`} key={card[0]}><span className="card-index">0{index + 1}</span><h2>{card[0]}</h2>{card[2] ? <strong className="price-tag">{card[1]}</strong> : null}<p>{card[2] || card[1]}</p><a href="/#product" className="inline-link">Explore this layer <ArrowUpRight size={15} /></a></article>)}</section>{detailed ? <><ChapterGrid kind={kind} /><Integrations kind={kind} /><Testimonial kind={kind} /><section className="detail-cta"><div><span className="section-index">READY WHEN YOU ARE</span><h2>Give your next<br /><em>idea a line.</em></h2></div><a className="dark-button" href="/#download">Start building <ArrowUpRight size={16} /></a></section></> : <section className="marketing-quote"><span className="lime-pill">THE GRIDLINE PRINCIPLE</span><blockquote>“The best AI tools don’t make the work feel automated. They make the work feel more like yours.”</blockquote><span className="quote-caption">— Product notes, issue 004</span></section>}</main><SiteFooter /></div>;
 }
