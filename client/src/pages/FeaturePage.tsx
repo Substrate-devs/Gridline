@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check, CircleDot, Code2, GitBranch, LockKeyhole, Play, Sparkles, Terminal, Zap } from "lucide-react";
 import { SiteFooter, SiteHeader } from "../components/SiteChrome";
 
@@ -58,8 +58,23 @@ const data: Record<FeatureKind, FeatureData> = {
 
 function FeatureCanvas({ kind, feature }: { kind: FeatureKind; feature: FeatureData }) {
   const [pulse, setPulse] = useState(0);
+  const canvasRef = useRef<HTMLDivElement>(null);
   useEffect(() => { const timer = window.setInterval(() => setPulse((value) => value + 1), 3400); return () => window.clearInterval(timer); }, []);
-  return <div className={`feature-canvas feature-canvas-${kind}`}><div className="feature-canvas-orbit orbit-one" /><div className="feature-canvas-orbit orbit-two" /><div className="feature-window"><div className="feature-window-bar"><span className="mini-dots"><i /><i /><i /></span><span>gridline / {kind}</span><span className="window-status"><CircleDot size={10} /> LIVE</span></div><div className="feature-window-main"><div className="feature-code-pane"><div className="pane-label"><Terminal size={12} /> {kind === "context" ? "repository-map.ts" : kind === "agent" ? "agent.plan.ts" : "release.md"}</div><pre>{feature.code}</pre><div className={`code-cursor cursor-${pulse % 3}`} /></div><div className="feature-agent-pane"><span className="feature-agent-label"><Sparkles size={12} /> Gridline Agent</span><strong>{feature.cardTitle}</strong><p>{feature.cardBody}</p><div className="feature-check-row"><Check size={12} /> {feature.stat} <small>{feature.statLabel}</small></div><button>Review next step <ArrowUpRight size={12} /></button></div></div></div><div className="canvas-float float-top"><Zap size={13} /> {kind === "context" ? "Context loaded" : kind === "agent" ? "Thinking with you" : "Ready to ship"}</div><div className="canvas-float float-bottom"><Code2 size={13} /> {kind === "context" ? "4 boundaries linked" : kind === "agent" ? "3 files changed" : "All checks passed"}</div></div>;
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      if (canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const progress = Math.max(0, Math.min(1, (window.innerHeight * 0.82 - rect.top) / (window.innerHeight + rect.height * 0.72)));
+        canvasRef.current.style.setProperty("--feature-scroll", progress.toFixed(3));
+      }
+      frame = 0;
+    };
+    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update); };
+    update(); window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("resize", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (frame) window.cancelAnimationFrame(frame); };
+  }, []);
+  return <div ref={canvasRef} className={`feature-canvas feature-canvas-${kind}`}><div className="feature-canvas-orbit orbit-one" /><div className="feature-canvas-orbit orbit-two" /><div className="feature-window"><div className="feature-window-bar"><span className="mini-dots"><i /><i /><i /></span><span>gridline / {kind}</span><span className="window-status"><CircleDot size={10} /> LIVE</span></div><div className="feature-window-main"><div className="feature-code-pane"><div className="pane-label"><Terminal size={12} /> {kind === "context" ? "repository-map.ts" : kind === "agent" ? "agent.plan.ts" : "release.md"}</div><pre>{feature.code}</pre><div className={`code-cursor cursor-${pulse % 3}`} /></div><div className="feature-agent-pane"><span className="feature-agent-label"><Sparkles size={12} /> Gridline Agent</span><strong>{feature.cardTitle}</strong><p>{feature.cardBody}</p><div className="feature-check-row"><Check size={12} /> {feature.stat} <small>{feature.statLabel}</small></div><button>Review next step <ArrowUpRight size={12} /></button></div></div></div><div className="canvas-float float-top"><Zap size={13} /> {kind === "context" ? "Context loaded" : kind === "agent" ? "Thinking with you" : "Ready to ship"}</div><div className="canvas-float float-bottom"><Code2 size={13} /> {kind === "context" ? "4 boundaries linked" : kind === "agent" ? "3 files changed" : "All checks passed"}</div></div>;
 }
 
 export default function FeaturePage({ kind }: { kind: FeatureKind }) {

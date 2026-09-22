@@ -33,15 +33,11 @@ const navItems = [
 const trustedMarks = [
   ["GitHub", "github"], ["Linear", "linear"], ["Vercel", "vercel"], ["Figma", "figma"],
   ["Notion", "notion"], ["Slack", "slack"], ["Raycast", "raycast"], ["Supabase", "supabase"],
-  ["PostHog", "posthog"], ["Resend", "resend"], ["Cursor", "cursor"], ["GitLab", "gitlab"],
+  ["PostHog", "posthog"], ["Resend", "resend"], ["GitLab", "gitlab"],
 ] as const;
 
 function IntegrationMark({ name, type }: { name: string; type: string }) {
-  if (type === "github") return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.4a9.6 9.6 0 0 0-3 18.72c.48.09.66-.2.66-.46v-1.67c-2.69.58-3.26-1.14-3.26-1.14-.44-1.11-1.07-1.4-1.07-1.4-.88-.6.07-.59.07-.59.97.07 1.48 1 1.48 1 .86 1.47 2.26 1.05 2.81.8.09-.63.34-1.05.61-1.29-2.15-.25-4.42-1.08-4.42-4.8 0-1.06.38-1.92 1-2.6-.1-.24-.43-1.23.1-2.57 0 0 .82-.26 2.64.99A9.2 9.2 0 0 1 12 9.06a9.2 9.2 0 0 1 2.4.32c1.82-1.25 2.64-.99 2.64-.99.53 1.34.2 2.33.1 2.57.62.68 1 1.54 1 2.6 0 3.73-2.28 4.55-4.44 4.79.35.3.65.88.65 1.78v2.64c0 .26.18.56.67.46A9.6 9.6 0 0 0 12 2.4Z" /></svg>;
-  if (type === "figma") return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 2.5a3.5 3.5 0 0 0 0 7h4v-7H8Zm0 8.5a3.5 3.5 0 1 0 0 7h4v-7H8Zm4-8.5v7h4a3.5 3.5 0 1 0 0-7h-4Zm0 8.5v7a3.5 3.5 0 1 0 3.5-3.5H12Zm0-1.5h4a3.5 3.5 0 1 0 0-7h-4v7Z" /></svg>;
-  if (type === "slack") return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.4 3.2a2.1 2.1 0 1 0-4.1 1.1l1.1 4.1 2.1-.6-1.1-4.6Zm5.2 0a2.1 2.1 0 1 0-1.1 4.1l4.1-1.1-.6-2.1-2.4-.9ZM3.2 9.4a2.1 2.1 0 1 0 1.1 4.1l4.1-1.1-.6-2.1-4.6-1Zm17.6 5.2a2.1 2.1 0 1 0-4.1 1.1l1.1 4.1 2.1-.6-.9-4.6ZM9.4 20.8a2.1 2.1 0 1 0 1.1-4.1l-4.1 1.1.6 2.1 2.4.9Zm5.2 0a2.1 2.1 0 1 0 1.1-4.1l-1.1-4.1-2.1.6 1.1 4.6Zm6.2-5.2a2.1 2.1 0 1 0-1.1-4.1l-4.1 1.1.6 2.1 4.6.9Z" /></svg>;
-  const initials = name === "PostHog" ? "PH" : name === "Supabase" ? "S" : name === "Raycast" ? "R" : name === "Resend" ? "R" : name === "Cursor" ? "C" : name === "GitLab" ? "GL" : name[0];
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".14" /><text x="12" y="15" fill="currentColor" fontSize={initials.length > 1 ? "7" : "11"} fontWeight="700" textAnchor="middle">{initials}</text></svg>;
+  return <img src={`https://cdn.simpleicons.org/${type}/68711f`} alt={`${name} logo`} loading="lazy" />;
 }
 
 const codeTabs = [
