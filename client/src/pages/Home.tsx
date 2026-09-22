@@ -7,9 +7,11 @@ import {
   Check,
   ChevronDown,
   Clock3,
+  Code2,
   Command,
   Copy,
   FileCode2,
+  GitBranch,
   Github,
   Globe2,
   Layers3,
@@ -256,6 +258,25 @@ function CommandPaletteDemo() {
   return <div className="command-demo"><button className="command-line command-trigger" aria-expanded={open} aria-controls="gridline-command-palette" onClick={() => setOpen(true)}><span className="keycap">⌘</span><span className="keycap">K</span><span>Ask Gridline anything…</span><span className="command-caret" /><span className="command-hint">Try it</span></button>{open ? <div className="command-popover" id="gridline-command-palette" role="dialog" aria-label="Gridline command palette"><div className="command-search"><Search size={15} /><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setHighlighted(0); }} onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); setHighlighted((value) => Math.min(value + 1, visibleCommands.length - 1)); } if (event.key === "ArrowUp") { event.preventDefault(); setHighlighted((value) => Math.max(value - 1, 0)); } if (event.key === "Enter" && visibleCommands[highlighted]) { event.preventDefault(); chooseCommand(visibleCommands[highlighted]); } }} placeholder="Ask about this codebase…" /><span className="keycap">esc</span></div><div className="command-list" role="listbox">{visibleCommands.map((command, index) => <button role="option" aria-selected={highlighted === index} className={highlighted === index ? "selected" : ""} key={command} onMouseEnter={() => setHighlighted(index)} onClick={() => chooseCommand(command)}>{!query && recent.includes(command) ? <Clock3 size={13} /> : <Sparkles size={13} />}<span>{command}</span><ArrowRight size={13} /></button>)}{visibleCommands.length === 0 ? <span className="command-empty">No matching commands. Try “refactor”.</span> : null}</div><div className="command-result"><span className="result-label"><Sparkles size={12} /> Gridline generated</span><pre>{generatedCode}</pre></div></div> : null}<div className="command-result command-result-static"><span className="result-label"><Sparkles size={12} /> Gridline generated</span><pre>{generatedCode}</pre></div></div>;
 }
 
+function AIChatDemo() {
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showDiff, setShowDiff] = useState(true);
+  const [message, setMessage] = useState("I found the auth boundary and 3 related files. I can make the loading state feel immediate without changing the public API.");
+  const generate = (event?: FormEvent) => {
+    event?.preventDefault();
+    if (!prompt.trim() || isGenerating) return;
+    setIsGenerating(true);
+    window.setTimeout(() => {
+      setMessage(`I drafted a focused change for “${prompt.trim()}”. The diff keeps the existing contract intact and adds a small, reviewable state transition.`);
+      setPrompt("");
+      setIsGenerating(false);
+      setShowDiff(true);
+    }, 700);
+  };
+  return <div className="ai-chat-demo"><div className="chat-header"><span><span className="chat-live-dot" /> Gridline Agent</span><span className="chat-context">12 files in context</span></div><div className="chat-thread"><div className="chat-user"><span className="chat-avatar user-avatar">you</span><p>Make the sign-in screen feel faster on slow networks.</p></div><div className="chat-agent"><span className="chat-avatar agent-avatar-small">✦</span><div><p>{isGenerating ? <span className="typing-label"><i /><i /><i /> thinking across auth/</span> : message}</p><div className="chat-files"><span><Code2 size={11} /> auth/loading.tsx</span><span><GitBranch size={11} /> +24 −8</span></div></div></div></div><div className="diff-toggle"><button className={!showDiff ? "active" : ""} onClick={() => setShowDiff(false)}>Conversation</button><button className={showDiff ? "active" : ""} onClick={() => setShowDiff(true)}>Diff view <span className="diff-count">3</span></button></div>{showDiff ? <div className="diff-view"><div className="diff-line diff-muted">@@ auth/loading.tsx</div><div className="diff-line diff-minus">− <span>Loading your account...</span></div><div className="diff-line diff-plus">+ <span>Preparing your workspace <b>...</b></span></div><div className="diff-line diff-plus">+ <span className="diff-accent">aria-live="polite"</span></div></div> : <div className="conversation-hint"><Sparkles size={13} /> Ask for a plan, then switch to diff view when it feels right.</div>}<form className="chat-input" onSubmit={generate}><input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask for a change…" /><button aria-label="Generate code" type="submit"><ArrowRight size={14} /></button></form></div>;
+}
+
 function CookieBanner({ onClose }: { onClose: () => void }) {
   return <div className="cookie-banner"><div><strong>OK with cookies?</strong><p>We use cookies to keep things running, understand how teams use Gridline, and improve the experience over time. Some are essential and the site needs them to work.</p><span>You can accept all, reject the non-essentials, or pick exactly what you’re comfortable with.</span></div><div className="cookie-actions"><button onClick={onClose}>Save and continue</button><button className="secondary" onClick={onClose}>Manage my preferences</button></div></div>;
 }
@@ -302,11 +323,13 @@ export default function Home() {
 
         <section className="teams-section" id="teams">
           <div className="team-card team-card-large"><div className="card-topline"><span>FOR SMALL TEAMS</span><ArrowUpRight size={16} /></div><div><h3>Make the space between idea and <span>shipped</span> feel smaller.</h3><p>Gridline gives every teammate a shared mental model of the work — not just a autocomplete box.</p></div><div className="avatar-row"><span className="avatar avatar-a">JM</span><span className="avatar avatar-b">RK</span><span className="avatar avatar-c">AL</span><span className="avatar-more">+ 14 teammates</span></div></div>
-          <div className="team-card team-card-dark"><div className="card-topline"><span>CONTEXT, ON COMMAND</span><Command size={16} /></div><CommandPaletteDemo /><p>Context should be one shortcut away. Never more.</p></div>
+          <div className="team-card team-card-dark"><div className="card-topline"><span>CONTEXT, ON COMMAND</span><Command size={16} /></div><div className="demo-duo"><CommandPaletteDemo /><AIChatDemo /></div><p>Context should be one shortcut away. Never more.</p></div>
           <div className="team-card team-card-lime"><div className="card-topline"><span>THE FEELING</span><span className="starburst">✳</span></div><h3>Quietly<br />powerful.</h3><p>No black-box magic. Just a better place to do your best work.</p><div className="lime-card-line" /></div>
         </section>
 
-        <section className="pricing-section" id="pricing"><div><span className="section-index">03 / START SMALL</span><h2>A better editor<br />for <em>every</em> build.</h2></div><div className="pricing-copy"><p>Start free. Bring your repo, your shortcuts, and your point of view. Upgrade when Gridline becomes the part of your workflow you can’t imagine losing.</p><button className="primary-button" onClick={() => setShowDownload(true)}>Get early access <ArrowRight size={15} /></button></div></section>
+        <section className="tagline-editorial"><img src="/manus-storage/Screenshot2026-09-22085841_5a68e6a7.png" alt="Built what's next." /><div className="tagline-overlay"><span className="section-index">04 / THE NEXT LINE</span><p>For the builders who can already see the shape of what comes next.</p><a href="/teams" className="editorial-link">Meet Gridline for teams <ArrowUpRight size={14} /></a></div></section>
+
+        <section className="pricing-section" id="pricing"><div><span className="section-index">05 / START SMALL</span><h2>A better editor<br />for <em>every</em> build.</h2></div><div className="pricing-copy"><p>Start free. Bring your repo, your shortcuts, and your point of view. Upgrade when Gridline becomes the part of your workflow you can’t imagine losing.</p><button className="primary-button" onClick={() => setShowDownload(true)}>Get early access <ArrowRight size={15} /></button></div></section>
 
         <section className="footer-cta" id="changelog"><div className="footer-cta-mark">✦</div><h2>Keep your eyes<br />on the <span>next line.</span></h2><button className="dark-button" onClick={() => setShowDownload(true)}>Try it on your next build <ArrowUpRight size={16} /></button></section>
       </main>
