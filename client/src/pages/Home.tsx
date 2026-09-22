@@ -263,18 +263,32 @@ function AIChatDemo() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showDiff, setShowDiff] = useState(true);
   const [message, setMessage] = useState("I found the auth boundary and 3 related files. I can make the loading state feel immediate without changing the public API.");
+  const [streamTarget, setStreamTarget] = useState("");
+  useEffect(() => {
+    if (!isGenerating || !streamTarget) return;
+    let cursor = 0;
+    const timer = window.setInterval(() => {
+      cursor += 2;
+      setMessage(streamTarget.slice(0, cursor));
+      if (cursor >= streamTarget.length) {
+        window.clearInterval(timer);
+        setIsGenerating(false);
+        setStreamTarget("");
+      }
+    }, 28);
+    return () => window.clearInterval(timer);
+  }, [isGenerating, streamTarget]);
   const generate = (event?: FormEvent) => {
     event?.preventDefault();
     if (!prompt.trim() || isGenerating) return;
+    const nextResponse = `I drafted a focused change for “${prompt.trim()}”. The diff keeps the existing contract intact and adds a small, reviewable state transition.`;
     setIsGenerating(true);
-    window.setTimeout(() => {
-      setMessage(`I drafted a focused change for “${prompt.trim()}”. The diff keeps the existing contract intact and adds a small, reviewable state transition.`);
-      setPrompt("");
-      setIsGenerating(false);
-      setShowDiff(true);
-    }, 700);
+    setMessage("");
+    setStreamTarget(nextResponse);
+    setPrompt("");
+    setShowDiff(true);
   };
-  return <div className="ai-chat-demo"><div className="chat-header"><span><span className="chat-live-dot" /> Gridline Agent</span><span className="chat-context">12 files in context</span></div><div className="chat-thread"><div className="chat-user"><span className="chat-avatar user-avatar">you</span><p>Make the sign-in screen feel faster on slow networks.</p></div><div className="chat-agent"><span className="chat-avatar agent-avatar-small">✦</span><div><p>{isGenerating ? <span className="typing-label"><i /><i /><i /> thinking across auth/</span> : message}</p><div className="chat-files"><span><Code2 size={11} /> auth/loading.tsx</span><span><GitBranch size={11} /> +24 −8</span></div></div></div></div><div className="diff-toggle"><button className={!showDiff ? "active" : ""} onClick={() => setShowDiff(false)}>Conversation</button><button className={showDiff ? "active" : ""} onClick={() => setShowDiff(true)}>Diff view <span className="diff-count">3</span></button></div>{showDiff ? <div className="diff-view"><div className="diff-line diff-muted">@@ auth/loading.tsx</div><div className="diff-line diff-minus">− <span>Loading your account...</span></div><div className="diff-line diff-plus">+ <span>Preparing your workspace <b>...</b></span></div><div className="diff-line diff-plus">+ <span className="diff-accent">aria-live="polite"</span></div></div> : <div className="conversation-hint"><Sparkles size={13} /> Ask for a plan, then switch to diff view when it feels right.</div>}<form className="chat-input" onSubmit={generate}><input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask for a change…" /><button aria-label="Generate code" type="submit"><ArrowRight size={14} /></button></form></div>;
+  return <div className="ai-chat-demo"><div className="chat-header"><span><span className="chat-live-dot" /> Gridline Agent</span><span className="chat-context">12 files in context</span></div><div className="chat-thread"><div className="chat-user"><span className="chat-avatar user-avatar">you</span><p>Make the sign-in screen feel faster on slow networks.</p></div><div className="chat-agent"><span className="chat-avatar agent-avatar-small">✦</span><div><p>{isGenerating && !message ? <span className="typing-label"><i /><i /><i /> thinking across auth/</span> : message}{isGenerating && message ? <span className="stream-cursor" /> : null}</p><div className="chat-files"><span><Code2 size={11} /> auth/loading.tsx</span><span><GitBranch size={11} /> +24 −8</span></div></div></div></div><div className="diff-toggle"><button className={!showDiff ? "active" : ""} onClick={() => setShowDiff(false)}>Conversation</button><button className={showDiff ? "active" : ""} onClick={() => setShowDiff(true)}>Diff view <span className="diff-count">3</span></button></div>{showDiff ? <div className="diff-view"><div className="diff-line diff-muted">@@ auth/loading.tsx</div><div className="diff-line diff-minus">− <span>Loading your account...</span></div><div className="diff-line diff-plus">+ <span>Preparing your workspace <b>...</b></span></div><div className="diff-line diff-plus">+ <span className="diff-accent">aria-live="polite"</span></div></div> : <div className="conversation-hint"><Sparkles size={13} /> Ask for a plan, then switch to diff view when it feels right.</div>}<form className="chat-input" onSubmit={generate}><input value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask for a change…" /><button aria-label="Generate code" type="submit"><ArrowRight size={14} /></button></form></div>;
 }
 
 function CookieBanner({ onClose }: { onClose: () => void }) {
@@ -286,6 +300,18 @@ export default function Home() {
   const [showDownload, setShowDownload] = useState(false);
   const [showCookies, setShowCookies] = useState(true);
   const current = demoModes[activeMode];
+
+  useEffect(() => {
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".reveal-on-scroll"));
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add("is-visible");
+    }), { threshold: 0.16 });
+    items.forEach((item) => observer.observe(item));
+    const onScroll = () => document.documentElement.style.setProperty("--scroll-progress", `${Math.min(window.scrollY / Math.max(document.body.scrollHeight - window.innerHeight, 1), 1)}`);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { observer.disconnect(); window.removeEventListener("scroll", onScroll); };
+  }, []);
 
   return (
     <div className="site-shell" id="top">
@@ -310,6 +336,8 @@ export default function Home() {
 
         <section className="signal-strip" aria-label="Product promise"><div><span className="strip-icon"><Zap size={14} /></span><span>Built for the 10x curious</span></div><div><span className="strip-icon"><Globe2 size={14} /></span><span>Private by default</span></div><div><span className="strip-icon"><TerminalSquare size={14} /></span><span>Works with your stack</span></div><div className="strip-arrow"><ArrowDown size={15} /></div></section>
 
+        <section className="integration-marquee reveal-on-scroll" aria-label="Supported integrations"><div className="marquee-label"><span className="section-index">WORKS WITH YOUR STACK</span><p>Bring the tools<br /><em>you already trust.</em></p></div><div className="marquee-window"><div className="marquee-track"><span>GitHub</span><i>✦</i><span>GitLab</span><i>✦</i><span>Linear</span><i>✦</i><span>Slack</span><i>✦</i><span>Notion</span><i>✦</i><span>Figma</span><i>✦</i><span>Sentry</span><i>✦</i><span>Vercel</span><i>✦</i><span>GitHub</span><i>✦</i><span>GitLab</span><i>✦</i></div></div></section>
+
         <section className="product-section" id="product">
           <div className="section-intro"><span className="section-index">02 / THE GRIDLINE METHOD</span><h2>Less prompting.<br /><span>More momentum.</span></h2><p>Gridline is an AI-native editor built around the way good work actually happens: a little context, a little taste, and a lot of iteration.</p></div>
           <div className="demo-wrap">
@@ -326,6 +354,8 @@ export default function Home() {
           <div className="team-card team-card-dark"><div className="card-topline"><span>CONTEXT, ON COMMAND</span><Command size={16} /></div><div className="demo-duo"><CommandPaletteDemo /><AIChatDemo /></div><p>Context should be one shortcut away. Never more.</p></div>
           <div className="team-card team-card-lime"><div className="card-topline"><span>THE FEELING</span><span className="starburst">✳</span></div><h3>Quietly<br />powerful.</h3><p>No black-box magic. Just a better place to do your best work.</p><div className="lime-card-line" /></div>
         </section>
+
+        <section className="feature-story reveal-on-scroll"><div className="feature-story-copy"><span className="section-index">03 / SIGNAL, NOT NOISE</span><h2>Make every output<br /><span>feel intentional.</span></h2><p>From generated code to release notes, Gridline keeps the human signal in the loop. See where a suggestion came from, what it touches, and why it belongs.</p><div className="story-points"><div><b>01</b><span>Traceable context</span></div><div><b>02</b><span>Reviewable changes</span></div><div><b>03</b><span>Human-led shipping</span></div></div></div><div className="feature-story-art"><img src="/manus-storage/Screenshot2026-09-22121557_7932d635.png" alt="Gridline product signal visual" /><div className="feature-caption"><Sparkles size={13} /> Output verified in context</div></div></section>
 
         <section className="tagline-editorial"><img src="/manus-storage/Screenshot2026-09-22085841_5a68e6a7.png" alt="Built what's next." /><div className="tagline-overlay"><span className="section-index">04 / THE NEXT LINE</span><p>For the builders who can already see the shape of what comes next.</p><a href="/teams" className="editorial-link">Meet Gridline for teams <ArrowUpRight size={14} /></a></div></section>
 
