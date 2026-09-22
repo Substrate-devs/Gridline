@@ -15,6 +15,8 @@ type FeatureData = {
   code: string;
   cardTitle: string;
   cardBody: string;
+  mascot: string;
+  mascotName: string;
 };
 
 const data: Record<FeatureKind, FeatureData> = {
@@ -28,7 +30,9 @@ const data: Record<FeatureKind, FeatureData> = {
     bullets: ["Repository map that updates as you work", "Answers grounded in the files that matter", "Private by default, local to your workspace"],
     code: "const context = await gridline\n  .map(repository)\n  .surface(relevantFiles)\n  .return(clarity)",
     cardTitle: "The shape of the problem",
-    cardBody: "Gridline found the auth boundary, three related components, and the test that protects the edge case."
+    cardBody: "Gridline found the auth boundary, three related components, and the test that protects the edge case.",
+    mascot: "/manus-storage/gridline-mascot-context_0d909790.png",
+    mascotName: "Context Owl"
   },
   agent: {
     eyebrow: "02 / AGENT",
@@ -40,7 +44,9 @@ const data: Record<FeatureKind, FeatureData> = {
     bullets: ["Plan before code, with decisions attached", "Conversation and diff view in one surface", "Keyboard-first command palette with history"],
     code: "agent.listen(\"make this feel faster\")\n  .plan(decisions)\n  .draft(reviewableDiff)",
     cardTitle: "Here’s a starting point.",
-    cardBody: "I found the loading boundary and kept the public API unchanged. Three files are ready for review."
+    cardBody: "I found the loading boundary and kept the public API unchanged. Three files are ready for review.",
+    mascot: "/manus-storage/gridline-mascot-agent_64c401a6.png",
+    mascotName: "Agent Fox"
   },
   ship: {
     eyebrow: "03 / SHIP",
@@ -52,7 +58,9 @@ const data: Record<FeatureKind, FeatureData> = {
     bullets: ["Diffs that explain what changed and why", "Checks and affected files visible at a glance", "Turn finished work into a clean handoff"],
     code: "diff.verify(checks)\n  .summarize(changelog)\n  .ship(confidently)",
     cardTitle: "All checks passed",
-    cardBody: "The change is scoped to four files, the edge case is covered, and a release note is ready to share."
+    cardBody: "The change is scoped to four files, the edge case is covered, and a release note is ready to share.",
+    mascot: "/manus-storage/gridline-mascot-ship_d91f3dc6.png",
+    mascotName: "Ship Swallow"
   }
 };
 
@@ -74,7 +82,7 @@ function FeatureCanvas({ kind, feature }: { kind: FeatureKind; feature: FeatureD
     update(); window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("resize", onScroll);
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (frame) window.cancelAnimationFrame(frame); };
   }, []);
-  return <div ref={canvasRef} className={`feature-canvas feature-canvas-${kind}`}><div className="feature-canvas-orbit orbit-one" /><div className="feature-canvas-orbit orbit-two" /><div className="feature-window"><div className="feature-window-bar"><span className="mini-dots"><i /><i /><i /></span><span>gridline / {kind}</span><span className="window-status"><CircleDot size={10} /> LIVE</span></div><div className="feature-window-main"><div className="feature-code-pane"><div className="pane-label"><Terminal size={12} /> {kind === "context" ? "repository-map.ts" : kind === "agent" ? "agent.plan.ts" : "release.md"}</div><pre>{feature.code}</pre><div className={`code-cursor cursor-${pulse % 3}`} /></div><div className="feature-agent-pane"><span className="feature-agent-label"><Sparkles size={12} /> Gridline Agent</span><strong>{feature.cardTitle}</strong><p>{feature.cardBody}</p><div className="feature-check-row"><Check size={12} /> {feature.stat} <small>{feature.statLabel}</small></div><button>Review next step <ArrowUpRight size={12} /></button></div></div></div><div className="canvas-float float-top"><Zap size={13} /> {kind === "context" ? "Context loaded" : kind === "agent" ? "Thinking with you" : "Ready to ship"}</div><div className="canvas-float float-bottom"><Code2 size={13} /> {kind === "context" ? "4 boundaries linked" : kind === "agent" ? "3 files changed" : "All checks passed"}</div></div>;
+  return <div ref={canvasRef} className={`feature-canvas feature-canvas-${kind}`}><div className="feature-canvas-orbit orbit-one" /><div className="feature-canvas-orbit orbit-two" /><div className="feature-window"><div className="feature-window-bar"><span className="mini-dots"><i /><i /><i /></span><span>gridline / {kind}</span><span className="window-status"><CircleDot size={10} /> LIVE</span></div><div className="feature-window-main"><div className="feature-code-pane"><div className="pane-label"><Terminal size={12} /> {kind === "context" ? "repository-map.ts" : kind === "agent" ? "agent.plan.ts" : "release.md"}</div><pre>{feature.code}</pre><div className={`code-cursor cursor-${pulse % 3}`} /></div><div className="feature-agent-pane"><span className="feature-agent-label"><Sparkles size={12} /> Gridline Agent</span><strong>{feature.cardTitle}</strong><p>{feature.cardBody}</p><div className="feature-check-row"><Check size={12} /> {feature.stat} <small>{feature.statLabel}</small></div><button>Review next step <ArrowUpRight size={12} /></button></div></div></div><div className="canvas-float float-top"><Zap size={13} /> {kind === "context" ? "Context loaded" : kind === "agent" ? "Thinking with you" : "Ready to ship"}</div><div className="canvas-float float-bottom"><Code2 size={13} /> {kind === "context" ? "4 boundaries linked" : kind === "agent" ? "3 files changed" : "All checks passed"}</div><div className="canvas-mascot"><img src={feature.mascot} alt={feature.mascotName} /><span>{feature.mascotName}</span></div></div>;
 }
 
 export default function FeaturePage({ kind }: { kind: FeatureKind }) {
