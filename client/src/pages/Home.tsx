@@ -295,6 +295,18 @@ function CookieBanner({ onClose }: { onClose: () => void }) {
   return <div className="cookie-banner"><div><strong>OK with cookies?</strong><p>We use cookies to keep things running, understand how teams use Gridline, and improve the experience over time. Some are essential and the site needs them to work.</p><span>You can accept all, reject the non-essentials, or pick exactly what you’re comfortable with.</span></div><div className="cookie-actions"><button onClick={onClose}>Save and continue</button><button className="secondary" onClick={onClose}>Manage my preferences</button></div></div>;
 }
 
+const workflowStories = [
+  { label: "Before the change", title: "Start with the shape of the problem.", body: "Gridline reads routes, components, tests, and conventions before it suggests a plan. You get a brief grounded in your actual product.", code: "context.map(repo)\n  .surface(intent)\n  .return(clarity)", note: "18 files understood" },
+  { label: "In the flow", title: "Keep the why beside the work.", body: "Ask, explore, and refine in one quiet workspace. The agent keeps your open files and decisions close, so momentum never turns into tab chaos.", code: "agent.listen(intent)\n  .show(reasoning)\n  .draft(reviewableDiff)", note: "3 decisions attached" },
+  { label: "After the review", title: "Ship with receipts, not mystery.", body: "Checks, summaries, and release notes arrive at the end of the same thread. Every change is easy to understand, share, and trust.", code: "diff.verify(checks)\n  .summarize(changelog)\n  .ship(confidently)", note: "All checks passed" },
+];
+
+function WorkflowStory() {
+  const [active, setActive] = useState(0);
+  const story = workflowStories[active];
+  return <section className="workflow-story reveal-on-scroll"><div className="workflow-heading"><span className="section-index">06 / THE GRIDLINE RHYTHM</span><h2>Good work has a<br /><em>before, during,</em><br />and after.</h2><p>Gridline stays useful across the whole arc of building software — not just the moment you ask it to write code.</p></div><div className="workflow-stage"><div className="workflow-tabs">{workflowStories.map((item, index) => <button className={active === index ? "active" : ""} key={item.label} onClick={() => setActive(index)}><span>0{index + 1}</span>{item.label}<ArrowRight size={14} /></button>)}</div><div className="workflow-visual"><div className="workflow-orbit orbit-a" /><div className="workflow-orbit orbit-b" /><div className="workflow-window"><div className="workflow-window-top"><span className="mini-dots"><i /><i /><i /></span><span>gridline / workspace</span><span className="workflow-live">LIVE</span></div><div className="workflow-window-body"><div className="workflow-code"><span className="code-kicker">{story.label}</span><pre>{story.code}</pre><span className="workflow-note"><Check size={12} /> {story.note}</span></div><div className="workflow-agent-card"><span className="agent-badge">✦ Gridline Agent</span><p>{story.title}</p><span className="agent-card-line" /><span className="agent-card-line short" /><button>Review next step <ArrowUpRight size={12} /></button></div></div></div></div><div className="workflow-copy"><span className="section-index">0{active + 1} / {story.label.toUpperCase()}</span><h3>{story.title}</h3><p>{story.body}</p><a href="/product" className="inline-link">Explore the workflow <ArrowUpRight size={15} /></a></div></div></section>;
+}
+
 export default function Home() {
   const [activeMode, setActiveMode] = useState(0);
   const [showDownload, setShowDownload] = useState(false);
@@ -356,6 +368,10 @@ export default function Home() {
         </section>
 
         <section className="feature-story reveal-on-scroll"><div className="feature-story-copy"><span className="section-index">03 / SIGNAL, NOT NOISE</span><h2>Make every output<br /><span>feel intentional.</span></h2><p>From generated code to release notes, Gridline keeps the human signal in the loop. See where a suggestion came from, what it touches, and why it belongs.</p><div className="story-points"><div><b>01</b><span>Traceable context</span></div><div><b>02</b><span>Reviewable changes</span></div><div><b>03</b><span>Human-led shipping</span></div></div></div><div className="feature-story-art"><img src="/manus-storage/Screenshot2026-09-22121557_7932d635.png" alt="Gridline product signal visual" /><div className="feature-caption"><Sparkles size={13} /> Output verified in context</div></div></section>
+
+        <WorkflowStory />
+
+        <section className="logo-wall reveal-on-scroll"><div className="logo-wall-heading"><span className="section-index">FOR THE DOERS</span><h2>Trusted by teams<br /><em>who care about the details.</em></h2></div><div className="logo-wall-grid"><span>GitHub</span><span>Linear</span><span>Vercel</span><span>Figma</span><span>Notion</span><span>Slack</span><span>Raycast</span><span>Supabase</span><span>PostHog</span><span>Resend</span><span>Cursor</span><span>GitLab</span></div></section>
 
         <section className="tagline-editorial"><img src="/manus-storage/Screenshot2026-09-22085841_5a68e6a7.png" alt="Built what's next." /><div className="tagline-overlay"><span className="section-index">04 / THE NEXT LINE</span><p>For the builders who can already see the shape of what comes next.</p><a href="/teams" className="editorial-link">Meet Gridline for teams <ArrowUpRight size={14} /></a></div></section>
 
